@@ -1,2 +1,2 @@
-# 24-7_Meteo
+# MeteoWeatherChannel
 Forecast app displaying weather forecast.
