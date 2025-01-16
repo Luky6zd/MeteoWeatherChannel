@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">MeteoWeatherChannel</string>
+    <string name="_24_c">24°C</string>
+    <string name="enter_city_name">Enter City Name</string>
+    <string name="city_name">City Name</string>
+    <string name="condition">Condition</string>
+    <string name="today_s_weather_information">Today\'s Weather Information</string>
 </resources>
