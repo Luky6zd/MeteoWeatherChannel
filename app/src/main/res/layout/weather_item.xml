@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:padding="4dp"
-            android:text="Time"
+            android:text="@string/time"
             android:textColor="@color/white"
             android:textAlignment="center" />
 
@@ -30,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="20°C"
+            android:text="@string/_20_c"
             android:textAlignment="center"
             android:textSize="20sp"
             android:layout_below="@+id/time"
@@ -55,11 +55,9 @@
             android:gravity="center"
             android:layout_below="@id/condition"
             android:textColor="@color/white"
-            android:text="13"
+            android:text="@string/_13"
             android:padding="3dp"
             android:layout_margin="4dp" />
 
-
     </RelativeLayout>
-
 </androidx.cardview.widget.CardView>

@@ -16,6 +16,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHolder> {
 
@@ -31,8 +32,8 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
     @NonNull
     @Override
     public WeatherAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        // inflate layout for each item
         View view = LayoutInflater.from(context).inflate(R.layout.weather_item, parent, false);
-
         return new ViewHolder(view);
     }
 
@@ -43,23 +44,44 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
 
         holder.temperature.setText(weatherModel.getTemperature() + "°C");
 
-        Picasso.get()
-                .load("http:".concat(weatherModel.getIcon()))
-                .into(holder.condition);
+        String iconUrl = weatherModel.getIcon();
 
-        holder.windSpeed.setText(weatherModel.getWindSpeed() + "Km/h");
-
-        SimpleDateFormat input = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-        SimpleDateFormat output = new SimpleDateFormat("hh:mm aa");
-
-        try {
-            Date t = input.parse(weatherModel.getTime());
-            holder.time.setText(output.format(t));
-        } catch (ParseException e) {
-            e.printStackTrace();
+        // getting weather icon from Picasso
+        if (iconUrl != null && !iconUrl.isEmpty()) {
+            Picasso.get()
+                    .load("http:" + iconUrl)
+                    .into(holder.condition);
+        } else {
+            // if url is missing, provided default icon
+            Picasso.get()
+                    .load("@drawable/cloudy.png")
+                    .into(holder.condition);
         }
 
+        String windSpeed = weatherModel.getWindSpeed();
+        if (windSpeed != null && !windSpeed.isEmpty()) {
+            holder.windSpeed.setText(windSpeed + " Km/h");
+        } else {
+            holder.windSpeed.setText("No data.");
+        }
 
+        String timeString = weatherModel.getTime();
+        if (timeString != null && !timeString.isEmpty()) {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+            SimpleDateFormat outputFormat = new SimpleDateFormat("hh:mm aa", Locale.getDefault());
+
+            try {
+                Date time = inputFormat.parse(timeString);
+                if (time != null) {
+                    holder.time.setText(outputFormat.format(time));
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+                holder.time.setText("Invalid Time.");
+            }
+        } else {
+            holder.time.setText("No data.");
+        }
     }
 
     @Override
@@ -67,10 +89,12 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
         return weatherModelArrayList.size();
     }
 
+    // ViewHolder class that holds views for each item
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         private TextView windSpeed, temperature, time;
         private ImageView condition;
+
         // constructor
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -79,7 +103,6 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
             temperature = itemView.findViewById(R.id.temperature);
             time = itemView.findViewById(R.id.time);
             condition = itemView.findViewById(R.id.condition);
-
         }
     }
 }

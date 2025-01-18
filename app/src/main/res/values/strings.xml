@@ -5,4 +5,11 @@
     <string name="city_name">City Name</string>
     <string name="condition">Condition</string>
     <string name="today_s_weather_information">Today\'s Weather Information</string>
+    <string name="weather_api_key">a8b01fcc79cb4b0cb31145640251801</string>
+    <string name="_13">13</string>
+    <string name="_20_c">20°C</string>
+    <string name="time">Time</string>
+    <string name="icon_representing_weather_condition">Icon representing weather condition</string>
+    <string name="search_icon_representing_weather">Search icon representing weather</string>
+    <string name="icon_representing_weather_temperature">Icon representing weather temperature</string>
 </resources>

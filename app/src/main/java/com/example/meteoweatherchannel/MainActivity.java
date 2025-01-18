@@ -18,6 +18,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.Manifest;
 import android.widget.Toast;
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<WeatherModel> weatherModelArrayList;
     private WeatherAdapter weatherAdapter;
     private LocationManager locationManager;
-    private int PERMISSION_CODE = 1;
+    private final int PERMISSION_CODE = 1;
     private String citiesName;
 
     @Override
@@ -78,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
         weatherModelArrayList = new ArrayList<>();
         weatherAdapter = new WeatherAdapter(this, weatherModelArrayList);
+        weather.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         weather.setAdapter(weatherAdapter);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -87,8 +89,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        citiesName = getCityName(location.getLongitude(), location.getLatitude());
-        getWeatherInfo(citiesName);
+        if (location != null) {
+            citiesName = getCityName(location.getLongitude(), location.getLatitude());
+            getWeatherInfo(citiesName);
+        } else {
+            Toast.makeText(MainActivity.this, "Unable to get current location", Toast.LENGTH_SHORT).show();
+        }
+
 
         searchIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,12 +104,11 @@ public class MainActivity extends AppCompatActivity {
                 if (city.isEmpty()) {
                     Toast.makeText(MainActivity.this, "Please enter city name", Toast.LENGTH_SHORT).show();
                 } else {
-                    MainActivity.this.city.setText(citiesName);
+                    MainActivity.this.city.setText(city);
                     getWeatherInfo(city);
                 }
             }
         });
-
     }
 
     @Override
@@ -125,19 +131,18 @@ public class MainActivity extends AppCompatActivity {
         try {
             List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 10);
 
+            assert addresses != null;
             for (Address address : addresses) {
                 if (address != null) {
                     String city = address.getLocality();
-                    if (city != null && !city.equals("")) {
+                    if (city != null && !city.isEmpty()) {
                         cityName = city;
                     } else {
                         Log.d("TAG", "City not found!");
                         Toast.makeText(this, "City not found...", Toast.LENGTH_SHORT).show();
                     }
                 }
-
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -145,11 +150,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getWeatherInfo(String cityName) {
-        String url = "http://api.weatherapi.com/v1/forecast.json?key=5fd2073805c944a1a55165032251601&q=" + cityName + "&days=1&aqi=no&alerts=no";
+        String api_key = getString(R.string.weather_api_key);
+        String api_key_url = "http://api.weatherapi.com/v1/forecast.json?key=" + api_key + "&q=" + cityName + "&days=1&aqi=no&alerts=no";
         city.setText(cityName);
         RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, api_key_url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 loading.setVisibility(View.GONE);
@@ -157,14 +163,16 @@ public class MainActivity extends AppCompatActivity {
                 weatherModelArrayList.clear();
 
                 try {
-                    String temerature = response.getJSONObject("current").getString("temp_c");
-                    temperature. setText(temerature + "°C");
-                    int isDay = response.getJSONObject("current").getInt("is_day");
-                    String condition = response.getJSONObject("current").getJSONObject("condition").getString("text");
-                    String conditionIcon = response.getJSONObject("current").getJSONObject("condition").getString("icon");
+                    JSONObject current = response.getJSONObject("current");
+                    String t = current.getString("temp_c");
+                    temperature.setText(t + "°C");
+
+                    int isDay = current.getInt("is_day");
+                    String condition = current.getJSONObject("condition").getString("text");
+                    String conditionIcon = current.getJSONObject("condition").getString("icon");
 
                     Picasso.get()
-                            .load("http:".concat(conditionIcon))
+                            .load("http:" + conditionIcon)
                             .into(icon);
 
                     conditionView.setText(condition);
@@ -172,12 +180,12 @@ public class MainActivity extends AppCompatActivity {
                     if (isDay == 1) {
                         // day
                         Picasso.get()
-                                .load("https://unsplash.com/photos/shot-of-white-clouds-on-blue-sky-dZH5qcz-DhI")
+                                .load(R.drawable.day_clouds)
                                 .into(background);
                     } else {
                         // night
                         Picasso.get()
-                                .load("https://unsplash.com/photos/a-view-of-the-sun-over-clouds-xu6INal8E30")
+                                .load(R.drawable.bg)
                                 .into(background);
                     }
 
@@ -198,13 +206,14 @@ public class MainActivity extends AppCompatActivity {
                     weatherAdapter.notifyDataSetChanged();
 
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    Toast.makeText(MainActivity.this, "Error processing the data...", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(MainActivity.this, "Please enter valid city name...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Error fetching weather data. Try again later.", Toast.LENGTH_SHORT).show();
             }
         });
 

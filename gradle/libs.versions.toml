@@ -1,5 +1,6 @@
 [versions]
 agp = "8.7.3"
+gradleCore = "2.2"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
@@ -12,6 +13,7 @@ playServicesLocation = "21.3.0"
 volley = "1.2.1"
 
 [libraries]
+gradle-core = { module = "org.gradle:gradle-core", version.ref = "gradleCore" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
