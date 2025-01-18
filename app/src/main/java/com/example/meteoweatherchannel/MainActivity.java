@@ -187,8 +187,15 @@ public class MainActivity extends AppCompatActivity {
 
                     for (int i = 0; i < hourArray.length(); i++) {
                         JSONObject hourObj = hourArray.getJSONObject(i);
+                        String time = hourObj.getString("time");
+                        String temp = hourObj.getString("temp_c");
+                        String img = hourObj.getJSONObject("condition").getString("icon");
+                        String wind = hourObj.getString("wind_kph");
 
+                        weatherModelArrayList.add(new WeatherModel(time, temp, img, wind));
                     }
+
+                    weatherAdapter.notifyDataSetChanged();
 
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
