@@ -45,5 +45,6 @@ dependencies {
     implementation(libs.picasso)
     implementation(libs.volley)
     implementation(libs.play.services.location)
+    implementation(libs.viewpager2)
     //implementation(libs.gradle.core)
 }

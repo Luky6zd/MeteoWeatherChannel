@@ -12,4 +12,7 @@
     <string name="icon_representing_weather_condition">Icon representing weather condition</string>
     <string name="search_icon_representing_weather">Search icon representing weather</string>
     <string name="icon_representing_weather_temperature">Icon representing weather temperature</string>
+    <string name="location">Location</string>
+    <string name="_18_c">18°C</string>
+    <string name="weather_icon">Weather Icon</string>
 </resources>

@@ -20,6 +20,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
+
 import android.Manifest;
 import android.widget.Toast;
 
@@ -37,7 +39,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -63,6 +67,11 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
         setContentView(R.layout.activity_main);
+
+        ViewPager2 viewPager2 = findViewById(R.id.viewPager);
+        List<String> locations = Arrays.asList("New York", "Zagreb", "Paris");
+        WeatherPagerAdapter adapter = new WeatherPagerAdapter(this, locations);
+        viewPager2.setAdapter(adapter);
 
         // linking local variables with layout by its ID (defined in View)
         // findViewById returns a reference to the view
@@ -180,12 +189,12 @@ public class MainActivity extends AppCompatActivity {
                     if (isDay == 1) {
                         // day
                         Picasso.get()
-                                .load(R.drawable.day_clouds)
+                                .load(R.drawable.weather_1)
                                 .into(background);
                     } else {
                         // night
                         Picasso.get()
-                                .load(R.drawable.bg)
+                                .load(R.drawable.weather_2)
                                 .into(background);
                     }
 
