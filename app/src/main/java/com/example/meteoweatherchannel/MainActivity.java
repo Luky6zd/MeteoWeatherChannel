@@ -1,12 +1,14 @@
 package com.example.meteoweatherchannel;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -32,6 +34,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -39,15 +42,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    // initializing variables
+    // initializations
     private RelativeLayout home;
     private ProgressBar loading;
     private TextView city, temperature, conditionView;
@@ -59,6 +60,11 @@ public class MainActivity extends AppCompatActivity {
     private LocationManager locationManager;
     private final int PERMISSION_CODE = 1;
     private String citiesName;
+    private WeatherPagerAdapter weatherPagerAdapter;
+    private ViewPager2 viewPager2;
+    private SharedPreferences prefs;
+    private Gson gson;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,13 +74,32 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        ViewPager2 viewPager2 = findViewById(R.id.viewPager);
-        List<String> locations = Arrays.asList("New York", "Zagreb", "Paris");
-        WeatherPagerAdapter adapter = new WeatherPagerAdapter(this, locations);
-        viewPager2.setAdapter(adapter);
+        prefs = getSharedPreferences("weather_prefs", MODE_PRIVATE);
+        // Inicijalizacija ViewPager2
+        viewPager2 = findViewById(R.id.viewPager);
 
-        // linking local variables with layout by its ID (defined in View)
-        // findViewById returns a reference to the view
+
+        List<String> cities = new ArrayList<>();
+        weatherPagerAdapter = new WeatherPagerAdapter(this, cities);
+        viewPager2.setAdapter(weatherPagerAdapter);
+
+        loadSavedCities();
+
+        // Učitaj spremljene gradove
+        List<String> savedCities = CitySharedPreferences.getCities(this);
+        // Dodaj sve spremljene gradove u adapter
+        for (String city : savedCities) {
+            weatherPagerAdapter.addCity(city);
+        }
+        //CitySharedPreferences.saveCities(this, weatherPagerAdapter.getCities()); // Spremi ažuriranu listu gradova
+
+        addCity("Zagreb");
+
+        // Spremi ažuriranu listu gradova
+        cities = weatherPagerAdapter.getCities();
+        CitySharedPreferences.saveCities(this, (ArrayList<String>) cities);
+
+        // linking local variables with layout
         home = findViewById(R.id.home);
         loading = findViewById(R.id.progressBarLoading);
         city = findViewById(R.id.cityName);
@@ -88,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
 
         weatherModelArrayList = new ArrayList<>();
         weatherAdapter = new WeatherAdapter(this, weatherModelArrayList);
+        // RecyclerView configuration
         weather.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         weather.setAdapter(weatherAdapter);
 
@@ -98,28 +124,91 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
         if (location != null) {
             citiesName = getCityName(location.getLongitude(), location.getLatitude());
+            // Dodaj trenutni grad u adapter
+            weatherPagerAdapter.addCity(citiesName);
             getWeatherInfo(citiesName);
         } else {
+            weatherPagerAdapter.addCity("Zagreb");
+            getWeatherInfo("Zagreb");
             Toast.makeText(MainActivity.this, "Unable to get current location", Toast.LENGTH_SHORT).show();
         }
 
-
-        searchIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String city = cityEdit.getText().toString();
-                if (city.isEmpty()) {
-                    Toast.makeText(MainActivity.this, "Please enter city name", Toast.LENGTH_SHORT).show();
-                } else {
-                    MainActivity.this.city.setText(city);
-                    getWeatherInfo(city);
-                }
+        // Spremi ažuriranu listu gradova
+        searchIcon.setOnClickListener(v -> {
+            String city = cityEdit.getText().toString().trim();
+            if (!city.isEmpty()) {
+                weatherPagerAdapter.addCity(city);
+                CitySharedPreferences.saveCities(this, (ArrayList<String>) weatherPagerAdapter.getCities());
+                getWeatherInfo(city);
+                // Očisti polje za pretragu
+                cityEdit.setText("");
+            } else {
+                Toast.makeText(MainActivity.this, "Please enter city name", Toast.LENGTH_SHORT).show();
+                MainActivity.this.city.setText(city);
+                getWeatherInfo(city);
             }
         });
+
+        //CitySharedPreferences.saveCities(this, (ArrayList<String>) cities);
+
+        // Pokreni simulaciju učitavanja
+        simulateLoading();
     }
 
+
+    private void simulateLoading() {
+        // Prikaži ProgressBar
+        loading.setVisibility(View.VISIBLE);
+
+        // Simuliraj zadatak u pozadini (npr. mrežni poziv)
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Sakrij ProgressBar nakon završetka
+                loading.setVisibility(View.GONE);
+
+                // Ovdje možete ažurirati UI nakon učitavanja
+            }
+        }, 3000); // Simuliraj 3 sekunde učitavanja
+    }
+
+
+    // Metoda za dodavanje grada
+    public void addCity(String city) {
+        // Dodaj grad u adapter
+        weatherPagerAdapter.addCity(city);
+        // Spremi sve gradove
+        CitySharedPreferences.saveCities(this, (ArrayList<String>) weatherPagerAdapter.getCities());
+
+        List<String> cities = weatherPagerAdapter.getCities();
+        if (cities.size() >= 10)
+            cities.remove(0);
+
+        cities.add(city);
+
+        viewPager2.setCurrentItem(weatherPagerAdapter.getItemCount() - 1, true);
+    }
+
+
+    // Metoda za učitavanje spremljenih gradova
+    private void loadSavedCities() {
+        List<String> savedCities = CitySharedPreferences.getCities(this);
+
+        if (savedCities == null) {
+            savedCities = new ArrayList<>();
+        }
+
+        if (savedCities != null) {
+            for (String city : savedCities) {
+                weatherPagerAdapter.addCity(city);
+            }
+        }
+    }
+
+    // Metoda za obradu odgovora od servera
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -134,12 +223,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Metoda za dobivanje imena grada
     private String getCityName(double longitude, double latitude) {
-        String cityName = "Not found";
+        String cityName = "Split";
         Geocoder geocoder = new Geocoder(getBaseContext(), Locale.getDefault());
+
         try {
             List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 10);
-
             assert addresses != null;
             for (Address address : addresses) {
                 if (address != null) {
@@ -158,9 +248,16 @@ public class MainActivity extends AppCompatActivity {
         return cityName;
     }
 
-    private void getWeatherInfo(String cityName) {
+    // Metoda za dobivanje podataka weather info
+    public void getWeatherInfo(String cityName) {
         String api_key = getString(R.string.weather_api_key);
-        String api_key_url = "http://api.weatherapi.com/v1/forecast.json?key=" + api_key + "&q=" + cityName + "&days=1&aqi=no&alerts=no";
+        String api_key_url = "http://api.weatherapi.com/v1/forecast.json?key=" + api_key + "&q=" + cityName + "&days=1";
+
+        if (api_key.isEmpty()) {
+            Toast.makeText(this, "API key is missing", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         city.setText(cityName);
         RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
 
@@ -182,6 +279,7 @@ public class MainActivity extends AppCompatActivity {
 
                     Picasso.get()
                             .load("http:" + conditionIcon)
+                            .error(R.drawable.weather_3)
                             .into(icon);
 
                     conditionView.setText(condition);
@@ -190,11 +288,13 @@ public class MainActivity extends AppCompatActivity {
                         // day
                         Picasso.get()
                                 .load(R.drawable.weather_1)
+                                .error(R.drawable.weather_3)
                                 .into(background);
                     } else {
                         // night
                         Picasso.get()
                                 .load(R.drawable.weather_2)
+                                .error(R.drawable.weather_7)
                                 .into(background);
                     }
 

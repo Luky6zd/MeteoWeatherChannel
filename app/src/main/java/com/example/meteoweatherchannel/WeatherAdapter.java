@@ -29,6 +29,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
         this.weatherModelArrayList = weatherModelArrayList;
     }
 
+    // create view holder
     @NonNull
     @Override
     public WeatherAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -37,13 +38,12 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
         return new ViewHolder(view);
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull WeatherAdapter.ViewHolder holder, int position) {
 
         WeatherModel weatherModel = weatherModelArrayList.get(position);
-
         holder.temperature.setText(weatherModel.getTemperature() + "°C");
-
         String iconUrl = weatherModel.getIcon();
 
         // getting weather icon from Picasso
@@ -84,12 +84,13 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
         }
     }
 
+
     @Override
     public int getItemCount() {
         return weatherModelArrayList.size();
     }
 
-    // ViewHolder class that holds views for each item
+    // ViewHolder class holds views for each item
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         private TextView windSpeed, temperature, time;
