@@ -47,11 +47,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
             android:gravity="center"
-            android:padding="20dp"
+            android:padding="60dp"
             android:text="@string/city_name"
             android:textAlignment="center"
             android:textColor="@color/white"
-            android:textSize="18sp" />
+            android:textSize="40sp" />
 
         <LinearLayout
             android:id="@+id/LinearLayoutEdit"
@@ -152,6 +152,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:orientation="horizontal"
+            android:layout_marginBottom="50dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     </RelativeLayout>

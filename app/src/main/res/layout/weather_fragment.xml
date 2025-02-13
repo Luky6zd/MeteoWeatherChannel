@@ -35,7 +35,7 @@
         android:id="@+id/weatherDescription"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Cloudy"
+        android:text="@string/cloudy"
         android:textSize="20sp" />
 
     <TextView

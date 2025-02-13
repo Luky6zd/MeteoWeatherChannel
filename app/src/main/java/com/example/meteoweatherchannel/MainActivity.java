@@ -287,14 +287,14 @@ public class MainActivity extends AppCompatActivity {
                     if (isDay == 1) {
                         // day
                         Picasso.get()
-                                .load(R.drawable.weather_1)
-                                .error(R.drawable.weather_3)
+                                .load(R.drawable.weather_3)
+                                .error(R.drawable.weather_1)
                                 .into(background);
                     } else {
                         // night
                         Picasso.get()
-                                .load(R.drawable.weather_2)
-                                .error(R.drawable.weather_7)
+                                .load(R.drawable.weather_7)
+                                .error(R.drawable.weather_2)
                                 .into(background);
                     }
 
