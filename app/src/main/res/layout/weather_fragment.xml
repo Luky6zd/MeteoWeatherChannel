@@ -36,7 +36,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/cloudy"
-        android:textSize="20sp" />
+        android:textStyle="bold"
+        android:textSize="40sp" />
 
     <TextView
         android:id="@+id/tvTime"

@@ -18,4 +18,6 @@
     <string name="new_key">74e739a2718b4d82965210905251002</string>
     <string name="old_key">a8b01fcc79cb4b0cb31145640251801</string>
     <string name="cloudy">Cloudy</string>
+    <string name="icon_weather_temperature" />
+    <string name="search_icon_weather" />
 </resources>

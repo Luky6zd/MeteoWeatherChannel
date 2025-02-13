@@ -288,13 +288,13 @@ public class MainActivity extends AppCompatActivity {
                         // day
                         Picasso.get()
                                 .load(R.drawable.weather_3)
-                                .error(R.drawable.weather_1)
+                                .error(R.drawable.weather_7)
                                 .into(background);
                     } else {
                         // night
                         Picasso.get()
-                                .load(R.drawable.weather_7)
-                                .error(R.drawable.weather_2)
+                                .load(R.drawable.weather_8)
+                                .error(R.drawable.weather_7)
                                 .into(background);
                     }
 
