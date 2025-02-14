@@ -20,6 +20,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -64,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager2 viewPager2;
     private SharedPreferences prefs;
     private Gson gson;
+    private WeatherFragmentAdapter weatherFragmentAdapter;
 
 
     @Override
@@ -81,6 +83,21 @@ public class MainActivity extends AppCompatActivity {
 
         List<String> cities = new ArrayList<>();
         weatherPagerAdapter = new WeatherPagerAdapter(this, cities);
+
+        // Create a list of fragments
+        List<Fragment> fragmentList = new ArrayList<>();
+        fragmentList.add(new WeatherFragment());
+        fragmentList.add(new WeatherFragment());
+        fragmentList.add(new WeatherFragment());
+
+        // Dodaj fragmente za 3 grada
+        weatherPagerAdapter.addCity("Zagreb");
+        weatherPagerAdapter.addCity("Split");
+        weatherPagerAdapter.addCity("Rijeka");
+
+        // Initialize the adapter
+        weatherFragmentAdapter = new WeatherFragmentAdapter(getSupportFragmentManager(), fragmentList);
+
         viewPager2.setAdapter(weatherPagerAdapter);
 
         loadSavedCities();

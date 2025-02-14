@@ -6,6 +6,15 @@
     android:gravity="center"
     android:padding="16dp" >
 
+    <!-- Weather information -->
+    <TextView
+        android:id="@+id/timeTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/time"
+        android:layout_marginTop="24dp"
+        android:textSize="18sp" />
+
     <TextView
         android:id="@+id/locationTextView"
         android:layout_width="wrap_content"
