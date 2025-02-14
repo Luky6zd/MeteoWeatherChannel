@@ -86,18 +86,21 @@ public class MainActivity extends AppCompatActivity {
 
         // Create a list of fragments
         List<Fragment> fragmentList = new ArrayList<>();
-        fragmentList.add(new WeatherFragment());
-        fragmentList.add(new WeatherFragment());
-        fragmentList.add(new WeatherFragment());
+        fragmentList.add(WeatherFragment.newInstance("Zagreb"));
+        fragmentList.add(WeatherFragment.newInstance("Split"));
+        fragmentList.add(WeatherFragment.newInstance("Rijeka"));
 
         // Dodaj fragmente za 3 grada
-        weatherPagerAdapter.addCity("Zagreb");
-        weatherPagerAdapter.addCity("Split");
-        weatherPagerAdapter.addCity("Rijeka");
+        //weatherPagerAdapter.addCity("Zagreb");
+        //weatherPagerAdapter.addCity("Split");
+        //weatherPagerAdapter.addCity("Rijeka");
 
-        // Initialize the adapter
+
+
+        // Initialize adapter with list of fragments
         weatherFragmentAdapter = new WeatherFragmentAdapter(getSupportFragmentManager(), fragmentList);
 
+        // Set adapter to the ViewPager
         viewPager2.setAdapter(weatherPagerAdapter);
 
         loadSavedCities();

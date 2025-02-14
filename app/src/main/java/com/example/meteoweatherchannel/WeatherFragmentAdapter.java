@@ -66,13 +66,19 @@ public class WeatherFragmentAdapter extends RecyclerView.Adapter<WeatherFragment
         holder.windSpeedTextView.setText("Wind Speed: " + weather.getWindSpeed());
     }
 
+    public WeatherData getItem(int position) {
+        // Returns the fragment for the given position
+        return weatherList.get(position);
+    }
+
     // Get the number of items in the list
     @Override
     public int getItemCount() {
+        // Returns total number of fragments (locations)
         return weatherList.size();
     }
 
-    // Method to update the list
+    // update the list
     public void updateList(List<WeatherData> newList) {
         weatherList = newList;
         notifyDataSetChanged();
