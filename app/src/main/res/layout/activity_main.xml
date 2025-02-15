@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:contentDescription="@string/icon_representing_weather_condition"
+            android:contentDescription="@string/weather_condition_icon"
             android:src="@color/black_shade_1" />
 
         <TextView
@@ -69,7 +69,7 @@
                 android:layout_margin="10dp"
                 android:layout_weight="4.5"
                 android:background="@android:color/transparent"
-                android:hint="@string/enter_city_name"
+                android:hint="@string/please_enter_city_name..."
                 android:padding="5dp"
                 android:textColorHint="@color/white"
                 app:boxStrokeColor="@android:color/transparent"
@@ -97,7 +97,7 @@
                 android:layout_weight="0.5"
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_search"
-                android:contentDescription="@string/search_icon_weather"
+                android:contentDescription="@string/weather_search_icon"
                 app:tint="@color/white" />
 
         </LinearLayout>
@@ -122,7 +122,7 @@
             android:layout_centerHorizontal="true"
             android:layout_margin="5dp"
             android:src="@mipmap/ic_launcher"
-            android:contentDescription="@string/icon_weather_temperature"
+            android:contentDescription="@string/weather_temperature_icon"
             />
 
         <TextView

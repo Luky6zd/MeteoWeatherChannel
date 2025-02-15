@@ -5,22 +5,20 @@ public class WeatherData {
     private String temperature;
     private String icon;
     private String windSpeed;
-
     private Location location;
     private Current current;
 
-    public WeatherData(Location location, Current current) {
-        this.location = location;
-        this.current = current;
-    }
-
-    public WeatherData(String time, String temperature, String icon, String windSpeed) {
+    // Constructor
+    public WeatherData(String time, String temperature, String icon, String windSpeed, Location location, Current current) {
         this.time = time;
         this.temperature = temperature;
         this.icon = icon;
         this.windSpeed = windSpeed;
+        this.location = location;
+        this.current = current;
     }
 
+    // Getters and setters
     public String getTime() {
         return time;
     }

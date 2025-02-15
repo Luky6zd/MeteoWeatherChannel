@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -77,17 +78,17 @@ public class MainActivity extends AppCompatActivity {
         prefs = getSharedPreferences("weather_prefs", MODE_PRIVATE);
         // Initialisation of ViewPager2
         viewPager2 = findViewById(R.id.viewPager);
-        // Inicijalizacija WeatherPagerAdaptera
-        List<String> cities = new ArrayList<>(Arrays.asList("Zagreb", "Split", "Osijek", "Rijeka", "Karlovac", "Vukovar", "Zadar", "Pula"));
+        // Initialisation of Weather Pager Adapter
+        List<String> cities = new ArrayList<>(Arrays.asList("Zagreb", "Split", "Osijek", "Rijeka", "Karlovac", "Vukovar", "Zadar", "Pula", "Dubrovnik", "Ploče"));
         weatherPagerAdapter = new WeatherPagerAdapter(this, cities);
 
         // Set adapter to the ViewPager
         viewPager2.setAdapter(weatherPagerAdapter);
 
-        // Add a new city
+        // Add new city
         weatherPagerAdapter.addCity("Dubai");
 
-        // Učitaj spremljene gradove
+        // Load saved cities
         loadSavedCities();
 
         // link local variables with UI layout elements
@@ -121,114 +122,120 @@ public class MainActivity extends AppCompatActivity {
         // Get last known location
         Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
-        // Get city name
         if (location != null) {
-            // Dobivanje imena grada
+            // get city name
             citiesName = getCityName(location.getLongitude(), location.getLatitude());
-            // Dodaj taj grad u adapter
+            // add city to adapter
             weatherPagerAdapter.addCity(citiesName);
-            // Spremi sve gradove
             getWeatherInfo(citiesName);
         } else {
-            // Dodaj grad Zagreb u adapter
+            // add default city
             weatherPagerAdapter.addCity("Zagreb");
-            // Dobivanje weather infoa za Zagreb
+            // get weather info for Zagreb
             getWeatherInfo("Zagreb");
             Toast.makeText(MainActivity.this, "Unable to get current location", Toast.LENGTH_SHORT).show();
         }
 
-        // Spremi ažuriranu listu gradova
+        // save updated list of cities
         searchIcon.setOnClickListener(v -> {
-            // Dobivanje imena grada
+            // get city name
             String city = cityEdit.getText().toString().trim();
             if (!city.isEmpty()) {
-                // Dodaj grad u adapter
+                // add city to adapter
                 weatherPagerAdapter.addCity(city);
-                // Spremi sve gradove
+                // save updated list of cities
                 CitySharedPreferences.saveCities(this, (ArrayList<String>) weatherPagerAdapter.getCities());
-                // Dobivanje weather infoa za taj grad
+                // get weather info for new city
                 getWeatherInfo(city);
-                // Očisti polje za pretragu
+                // clear edit text
                 cityEdit.setText("");
+                hideKeyboard();
             } else {
                 Toast.makeText(MainActivity.this, "Please enter city name", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // Pokreni simulaciju učitavanja
+        // load simulation of loading
         simulateLoading();
 
     }
 
-    // simulacija učitavanja
+    // hidding keyboard after entering city
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(cityEdit.getWindowToken(), 0);
+        }
+    }
+
+    // loading simulation
     private void simulateLoading() {
-        // Označi da se učitava
+        // set loading visibility
         loading.setVisibility(View.VISIBLE);
-        // Pokreni simulaciju učitavanja
+        // start loading
         new Handler().postDelayed(() -> loading.setVisibility(View.GONE), 3000);
     }
 
-    // dodavanje grada
+    // adding city to adapter
     public void addCity(String city) {
-        // Dodaj grad u adapter
         weatherPagerAdapter.addCity(city);
-        // Spremi sve gradove
+        // save updated list of cities
         CitySharedPreferences.saveCities(this, (ArrayList<String>) weatherPagerAdapter.getCities());
-        // dobavi listu gradova
+        // get list of cities
         List<String> cities = weatherPagerAdapter.getCities();
-        if (cities.size() >= 20)
+        if (cities.size() >= 30)
             cities.remove(0);
         cities.add(city);
-        // Spremi ažuriranu listu gradova
+        // save updated list of cities
         viewPager2.setCurrentItem(weatherPagerAdapter.getItemCount() - 1, true);
     }
 
-    // učitavanje spremljenih gradova
+    // load saved cities
     private void loadSavedCities() {
-        // Dobavljanje spremljenih gradova
+        // get list of saved cities
         List<String> savedCities = CitySharedPreferences.getCities(this);
 
         if (savedCities != null) {
             for (String city : savedCities) {
-                // Dodaj spremljene gradove u adapter
+                // add city to adapter
                 weatherPagerAdapter.addCity(city);
             }
         }
     }
 
-    // obrada odgovora sa servera
+    // server response
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        // Provjera da li korisnik ima dozvolu
+        // user permission check
         if (requestCode == PERMISSION_CODE) {
-            // Ako korisnik prihvati dozvolu
+            // if permission is granted
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Permissions granted.", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "Please provide the permissions", Toast.LENGTH_SHORT).show();
-                // Zatvori aplikaciju
+                // close app
                 finish();
             }
         }
     }
 
-    // dobivanje imena grada
+    // get city name
     private String getCityName(double longitude, double latitude) {
         String cityName = "Split";
-        // Geocoder za dobivanje imena grada
+        // geocoder for getting city name
         Geocoder geocoder = new Geocoder(getBaseContext(), Locale.getDefault());
 
         try {
-            // Dobivanje lokacije grada
+            // getting city location
             List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 10);
             assert addresses != null;
             for (Address address : addresses) {
                 if (address != null) {
-                    // Dobivanje imena grada
+                    // getting city name
                     String city = address.getLocality();
                     if (city != null && !city.isEmpty()) {
-                        // Spremanje imena grada
+                        // save city name
                         cityName = city;
                         break;
                     } else {
@@ -242,22 +249,22 @@ public class MainActivity extends AppCompatActivity {
         return cityName;
     }
 
-    // dobivanje weather info podataka
+    // getting weather info data
     public void getWeatherInfo(String cityName) {
         String api_key = getString(R.string.weather_api_key);
         String api_key_url = "http://api.weatherapi.com/v1/forecast.json?key=" + api_key + "&q=" + cityName + "&days=1";
 
-        // Provjera da li je API ključ postavljen
+        // check if api key is empty
         if (api_key.isEmpty()) {
             Toast.makeText(this, "API key is missing", Toast.LENGTH_SHORT).show();
             return;
         }
-        // Postavi grad
+        // set city name
         city.setText(cityName);
-        // Kreiranje novog zahtjeva
+        // create request queue data
         RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
 
-        // Kreiranje zahtjeva za dobivanje odgovora se servera
+        // create json object request
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, api_key_url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -266,12 +273,12 @@ public class MainActivity extends AppCompatActivity {
                 weatherModelArrayList.clear();
 
                 try {
-                    // dobivanje podataka za temperaturu
+                    // getting temperature data
                     JSONObject current = response.getJSONObject("current");
                     String t = current.getString("temp_c");
                     temperature.setText(t + "°C");
 
-                    // dobivanje podataka za ikonu i opis
+                    // getting condition data and icon
                     int isDay = current.getInt("is_day");
                     String condition = current.getJSONObject("condition").getString("text");
                     String conditionIcon = current.getJSONObject("condition").getString("icon");
@@ -299,13 +306,13 @@ public class MainActivity extends AppCompatActivity {
                                 .into(background);
                     }
 
-                    // dobivanje podataka za vrijeme
+                    // getting forecast data
                     JSONObject forecastObj = response.getJSONObject("forecast");
                     JSONObject forecastdayObj = forecastObj.getJSONArray("forecastday").getJSONObject(0);
-                    // prikaz weathera po satu (kartice)
+                    // display forecast card by hour
                     JSONArray hourArray = forecastdayObj.getJSONArray("hour");
 
-                    // Popunjavanje "hour arraya" weather podacima
+                    // setting weather data in forecast card
                     for (int i = 0; i < hourArray.length(); i++) {
                         JSONObject hourObj = hourArray.getJSONObject(i);
                         String time = hourObj.getString("time");
@@ -313,10 +320,10 @@ public class MainActivity extends AppCompatActivity {
                         String img = hourObj.getJSONObject("condition").getString("icon");
                         String wind = hourObj.getString("wind_kph");
 
-                        // Dodavanje podataka u weather model
+                        // adding data to weather model
                         weatherModelArrayList.add(new WeatherModel(time, temp, img, wind));
                     }
-                    // Azuriranje adaptera
+                    // updating weather adapter
                     weatherAdapter.notifyDataSetChanged();
 
                 } catch (JSONException e) {
@@ -331,7 +338,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Error fetching weather data. Try again later.", Toast.LENGTH_SHORT).show();
             }
         });
-        // Dodavanje zahtjeva u red za izvršavanje
+        // adding request to request queue
         requestQueue.add(jsonObjectRequest);
     }
 }

@@ -4,11 +4,13 @@ public class Condition {
     private String text;
     private String icon;
 
+    // Constructor
     public Condition(String text, String icon) {
         this.text = text;
         this.icon = icon;
     }
 
+    // Getters and setters
     public String getText() {
         return text;
     }

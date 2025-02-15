@@ -6,19 +6,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.gson.Gson;
-
-import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,11 +18,11 @@ import java.util.List;
 public class WeatherFragment extends Fragment {
     private static final String CITY = "city";
     private String city;
-    private TextView tvTime, tvTemperature, tvWindSpeed;
+    private TextView temperatureTextView, locationTextView, weatherDescriptionTextView, timeTextView;
     private RecyclerView recyclerView;
     private WeatherFragmentAdapter adapter;
     private List<WeatherData> weatherList;
-    private ImageView searchIcon;
+    private ImageView weatherIcon;
 
     // Constructor
     public static WeatherFragment newInstance(String city) {
@@ -59,10 +50,11 @@ public class WeatherFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         // Initialize Text Views elements
-        tvTime = view.findViewById(R.id.tvTime);
-        tvTemperature = view.findViewById(R.id.tvTemperature);
-        tvWindSpeed = view.findViewById(R.id.tvWindSpeed);
-        ImageView searchIcon = view.findViewById(R.id.weatherIcon);
+        temperatureTextView = view.findViewById(R.id.temperatureTextView);
+        locationTextView = view.findViewById(R.id.locationTextView);
+        weatherDescriptionTextView = view.findViewById(R.id.weatherDescription);
+        timeTextView = view.findViewById(R.id.timeTextView);
+        ImageView weatherIcon = view.findViewById(R.id.weatherIcon);
 
         // Get city from arguments and fetch weather data
         assert getArguments() != null;

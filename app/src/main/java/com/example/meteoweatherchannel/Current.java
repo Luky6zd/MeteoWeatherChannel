@@ -4,11 +4,13 @@ public class Current {
     private double temp_c;
     private Condition condition;
 
+    // Constructor
     public Current(double temp_c, Condition condition) {
         this.temp_c = temp_c;
         this.condition = condition;
     }
 
+    // Getters and setters
     public double getTemp_c() {
         return temp_c;
     }

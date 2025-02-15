@@ -48,25 +48,6 @@
         android:textStyle="bold"
         android:textSize="40sp" />
 
-    <TextView
-        android:id="@+id/tvTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="18sp" />
-
-    <TextView
-        android:id="@+id/tvTemperature"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="24sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/tvWindSpeed"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="18sp" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"

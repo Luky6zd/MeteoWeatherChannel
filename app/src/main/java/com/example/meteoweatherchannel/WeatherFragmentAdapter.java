@@ -28,7 +28,7 @@ public class WeatherFragmentAdapter extends RecyclerView.Adapter<WeatherFragment
 
     // ViewHolder class
     public static class WeatherViewHolder extends RecyclerView.ViewHolder {
-        TextView timeTextView, temperatureTextView, windSpeedTextView;
+        TextView timeTextView, temperatureTextView, windSpeedTextView, locationTextView, weatherDescriptionTextView;
         ImageView iconImageView;
 
         // Constructor
@@ -39,6 +39,8 @@ public class WeatherFragmentAdapter extends RecyclerView.Adapter<WeatherFragment
             temperatureTextView = itemView.findViewById(R.id.temperature);
             iconImageView = itemView.findViewById(R.id.icon);
             windSpeedTextView = itemView.findViewById(R.id.windSpeed);
+            locationTextView = itemView.findViewById(R.id.locationTextView);
+            weatherDescriptionTextView = itemView.findViewById(R.id.weatherDescription);
         }
     }
 
@@ -61,6 +63,8 @@ public class WeatherFragmentAdapter extends RecyclerView.Adapter<WeatherFragment
         holder.timeTextView.setText("Time: " + weather.getTime());
         holder.temperatureTextView.setText("Temperature: " + weather.getTemperature());
         holder.windSpeedTextView.setText("Wind Speed: " + weather.getWindSpeed());
+        holder.locationTextView.setText("Location: " + weather.getLocation());
+        holder.weatherDescriptionTextView.setText("Weather Description: " + weather.getCurrent());
 
         Picasso.get()
                 .load(weather.getIcon())

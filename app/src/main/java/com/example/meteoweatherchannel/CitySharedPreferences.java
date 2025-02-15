@@ -14,30 +14,28 @@ public class CitySharedPreferences {
     private static final String PREFS_NAME = "CityPrefs";
     private static final String KEY_CITIES = "cities";
 
-    // Spremi listu gradova
+    // save list of cities in SharedPreferences
     public static void saveCities(Context context, List<String> cities) {
-        // SharedPreferences za spremanje
+        // saving in SharedPreferences
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        // Editor za spremanje
+        // editor
         SharedPreferences.Editor editor = prefs.edit();
 
-        // Pretvori listu u Set za pohranu
+        // convert list of cities to set
         Set<String> set = new HashSet<>(cities);
         editor.putStringSet(KEY_CITIES, set);
 
-        // Asinkrono spremanje
+        // async apply changes
         editor.apply();
     }
 
-    // Metoda za dobivanje spremljenih gradova
+    // get list of cities from SharedPreferences
     public static List<String> getCities(Context context) {
-        // SharedPreferences za getanje
+        // read list of cities from SharedPreferences
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-
-        // Dohvati set i odmah ga pretvori u novi HashSet da bude "mutable"
         Set<String> set = prefs.getStringSet(KEY_CITIES, new HashSet<>());
 
-        // Vrati listu gradova
+        // return list of cities
         return new ArrayList<>(set);
     }
 }

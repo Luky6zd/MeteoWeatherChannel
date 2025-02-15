@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">MeteoWeatherChannel</string>
     <string name="_24_c">24°C</string>
-    <string name="enter_city_name">Enter City Name</string>
+    <string name="please_enter_city_name...">Enter City Name</string>
     <string name="city_name">City Name</string>
     <string name="condition">Condition</string>
     <string name="today_s_weather_information">Today\'s Weather Information</string>
@@ -9,7 +9,7 @@
     <string name="_13">13</string>
     <string name="_20_c">20°C</string>
     <string name="time">Time</string>
-    <string name="icon_representing_weather_condition">Icon representing weather condition</string>
+    <string name="weather_condition_icon">Icon representing weather condition</string>
     <string name="search_icon_representing_weather">Search icon representing weather</string>
     <string name="icon_representing_weather_temperature">Icon representing weather temperature</string>
     <string name="location">Location</string>
@@ -18,6 +18,6 @@
     <string name="new_key">74e739a2718b4d82965210905251002</string>
     <string name="old_key">a8b01fcc79cb4b0cb31145640251801</string>
     <string name="cloudy">Cloudy</string>
-    <string name="icon_weather_temperature" />
-    <string name="search_icon_weather" />
+    <string name="weather_temperature_icon" />
+    <string name="weather_search_icon" />
 </resources>
