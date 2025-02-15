@@ -1,5 +1,6 @@
 package com.example.meteoweatherchannel;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,17 +16,14 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+// adapter for weather data in weather fragment
 public class WeatherFragmentAdapter extends RecyclerView.Adapter<WeatherFragmentAdapter.WeatherViewHolder> {
 
-    // List of weather data
     private List<WeatherData> weatherList;
 
     // Constructor
     public WeatherFragmentAdapter(List<WeatherData> weatherList) {
         this.weatherList = weatherList;
-    }
-
-    public WeatherFragmentAdapter(FragmentManager supportFragmentManager, List<Fragment> fragmentList) {
     }
 
     // ViewHolder class
@@ -36,6 +34,7 @@ public class WeatherFragmentAdapter extends RecyclerView.Adapter<WeatherFragment
         // Constructor
         public WeatherViewHolder(@NonNull View itemView) {
             super(itemView);
+            // Initialize views
             timeTextView = itemView.findViewById(R.id.time);
             temperatureTextView = itemView.findViewById(R.id.temperature);
             iconImageView = itemView.findViewById(R.id.icon);
@@ -43,14 +42,17 @@ public class WeatherFragmentAdapter extends RecyclerView.Adapter<WeatherFragment
         }
     }
 
+    // Create new ViewHolder
     @NonNull
     @Override
     public WeatherViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflate the item layout
+        // Inflate item layout
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.weather_item, parent, false);
+
         return new WeatherViewHolder(view);
     }
 
+    // Bind data to ViewHolder
     @Override
     public void onBindViewHolder(@NonNull WeatherViewHolder holder, int position) {
         // Bind data to the views
@@ -58,27 +60,23 @@ public class WeatherFragmentAdapter extends RecyclerView.Adapter<WeatherFragment
         // Set data to the views
         holder.timeTextView.setText("Time: " + weather.getTime());
         holder.temperatureTextView.setText("Temperature: " + weather.getTemperature());
-        //holder.iconImageView.setImageDrawable("Icon: " + weather.getIcon());
+        holder.windSpeedTextView.setText("Wind Speed: " + weather.getWindSpeed());
+
         Picasso.get()
                 .load(weather.getIcon())
+                .error(R.drawable.cloudy)
                 .into(holder.iconImageView);
-
-        holder.windSpeedTextView.setText("Wind Speed: " + weather.getWindSpeed());
     }
 
-    public WeatherData getItem(int position) {
-        // Returns the fragment for the given position
-        return weatherList.get(position);
-    }
-
-    // Get the number of items in the list
+    // Get number of weather items
     @Override
     public int getItemCount() {
-        // Returns total number of fragments (locations)
+        // Returns total number of weather fragments (locations)
         return weatherList.size();
     }
 
-    // update the list
+    // update list of weather data
+    @SuppressLint("NotifyDataSetChanged")
     public void updateList(List<WeatherData> newList) {
         weatherList = newList;
         notifyDataSetChanged();

@@ -43,12 +43,12 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    // initializations
     private RelativeLayout home;
     private ProgressBar loading;
     private TextView city, temperature, conditionView;
@@ -73,16 +73,20 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         setContentView(R.layout.activity_main);
 
-        // Inicijalizacija SharedPreferences
+        // Initialisation of SharedPreferences
         prefs = getSharedPreferences("weather_prefs", MODE_PRIVATE);
-        // Inicijalizacija ViewPager2
+        // Initialisation of ViewPager2
         viewPager2 = findViewById(R.id.viewPager);
         // Inicijalizacija WeatherPagerAdaptera
-        List<String> cities = new ArrayList<>();
+        List<String> cities = new ArrayList<>(Arrays.asList("Zagreb", "Split", "Osijek", "Rijeka", "Karlovac", "Vukovar", "Zadar", "Pula"));
         weatherPagerAdapter = new WeatherPagerAdapter(this, cities);
 
         // Set adapter to the ViewPager
         viewPager2.setAdapter(weatherPagerAdapter);
+
+        // Add a new city
+        weatherPagerAdapter.addCity("Dubai");
+
         // Učitaj spremljene gradove
         loadSavedCities();
 
@@ -155,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
         simulateLoading();
 
     }
-    
+
     // simulacija učitavanja
     private void simulateLoading() {
         // Označi da se učitava
@@ -170,12 +174,12 @@ public class MainActivity extends AppCompatActivity {
         weatherPagerAdapter.addCity(city);
         // Spremi sve gradove
         CitySharedPreferences.saveCities(this, (ArrayList<String>) weatherPagerAdapter.getCities());
-
+        // dobavi listu gradova
         List<String> cities = weatherPagerAdapter.getCities();
-        if (cities.size() >= 10)
+        if (cities.size() >= 20)
             cities.remove(0);
         cities.add(city);
-
+        // Spremi ažuriranu listu gradova
         viewPager2.setCurrentItem(weatherPagerAdapter.getItemCount() - 1, true);
     }
 
