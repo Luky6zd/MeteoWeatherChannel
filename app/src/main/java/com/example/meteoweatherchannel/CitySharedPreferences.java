@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Set;
 
 public class CitySharedPreferences {
+    // name of SharedPreferences
     private static final String PREFS_NAME = "CityPrefs";
+    // key for saving list of cities
     private static final String KEY_CITIES = "cities";
 
     // save list of cities in SharedPreferences

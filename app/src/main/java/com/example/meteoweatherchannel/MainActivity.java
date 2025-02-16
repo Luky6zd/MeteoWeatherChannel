@@ -12,7 +12,6 @@ import android.os.Handler;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -21,7 +20,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -35,8 +33,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -118,6 +117,16 @@ public class MainActivity extends AppCompatActivity {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_CODE);
+
+            // ask for permissions
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    PERMISSION_CODE
+            );
+        } else {
+            // start getting location
+            getCurrentLocation();
         }
 
         // Get last known location
@@ -158,6 +167,37 @@ public class MainActivity extends AppCompatActivity {
 
         // load simulation of loading
         simulateLoading();
+        //addCity("Budapest");
+    }
+
+    private void getCurrentLocation() {
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        // Provjeri je li GPS ili mrežni provider dostupan
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            // Koristi FusedLocationProviderClient za precizniju lokaciju (Google Play Services)
+            FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, location -> {
+                        if (location != null) {
+                            double latitude = location.getLatitude();
+                            double longitude = location.getLongitude();
+                            String city = getCityName(longitude, latitude);
+                            getWeatherInfo(city); // Dohvati vremenske podatke za grad
+                        } else {
+                            // Fallback: Koristi zadani grad ako lokacija nije dostupna
+                            getWeatherInfo("Split");
+                            Toast.makeText(this, "Location not available", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        } else {
+            // if GPS is not enabled
+            Toast.makeText(this, "Turn on GPS for location", Toast.LENGTH_LONG).show();
+        }
     }
 
     // hiding keyboard after entering city
@@ -186,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
         if (cities.size() >= 30)
             cities.remove(0);
         cities.add(city);
-        // save updated list of cities
+        // scroll for new city
         viewPager2.setCurrentItem(weatherPagerAdapter.getItemCount() - 1, true);
     }
 
@@ -211,6 +251,8 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == PERMISSION_CODE) {
             // if permission is granted
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // get location access
+                getCurrentLocation();
                 Toast.makeText(this, "Permissions granted.", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "Please provide the permissions", Toast.LENGTH_SHORT).show();
@@ -228,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             // getting city location
-            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 10);
+            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 30);
             assert addresses != null;
             for (Address address : addresses) {
                 if (address != null) {

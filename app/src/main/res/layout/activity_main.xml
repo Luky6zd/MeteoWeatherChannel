@@ -8,6 +8,7 @@
     android:background="@color/black_shade_1"
     tools:context=".MainActivity">
 
+    <!-- View Pager 2 as main container -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
