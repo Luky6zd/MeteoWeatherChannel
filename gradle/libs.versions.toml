@@ -14,6 +14,7 @@ picasso = "2.71828"
 playServicesLocation = "21.3.0"
 viewpager2 = "1.1.0"
 volley = "1.2.1"
+recyclerview = "1.4.0"
 
 [libraries]
 fragment = { module = "androidx.fragment:fragment", version.ref = "fragment" }
@@ -30,6 +31,7 @@ picasso = { module = "com.squareup.picasso:picasso", version.ref = "picasso" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "viewpager2" }
 volley = { module = "com.android.volley:volley", version.ref = "volley" }
+recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

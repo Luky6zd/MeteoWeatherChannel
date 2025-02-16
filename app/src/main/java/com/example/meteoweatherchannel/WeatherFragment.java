@@ -3,6 +3,7 @@ package com.example.meteoweatherchannel;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,13 +69,24 @@ public class WeatherFragment extends Fragment {
 
         return view;
     }
-    @Override
+
+    // fetch weather data from API and update UI
+   @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        assert getArguments() != null;
-        String city = getArguments().getString("Solin");
-        ((MainActivity) requireActivity()).getWeatherInfo(city);
+        // Get city from arguments and fetch weather data
+       Bundle args = getArguments();
+       if (args != null) {
+           // get same city from arguments
+           String city = args.getString(CITY);
+           if (city != null) {
+               ((MainActivity) requireActivity()).getWeatherInfo(city);
+           } else {
+               Log.e("WeatherFragment", "City argument is null");
+           }
+       } else {
+           Log.e("WeatherFragment", "Arguments are null");
+       }
     }
-
 }

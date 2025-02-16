@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -79,8 +80,9 @@ public class MainActivity extends AppCompatActivity {
         // Initialisation of ViewPager2
         viewPager2 = findViewById(R.id.viewPager);
         // Initialisation of Weather Pager Adapter
-        List<String> cities = new ArrayList<>(Arrays.asList("Solin", "Split", "Zagreb", "Osijek", "Rijeka", "Karlovac", "Vukovar", "Zadar", "Pula", "Dubrovnik", "Ploče"));
+        List<String> cities = new ArrayList<>(Arrays.asList("Solin", "Split", "Zagreb", "Osijek", "Rijeka", "Karlovac", "Vukovar", "Zadar", "Pula", "Dubrovnik", "Ploče", "Sibenik", "Makarska"));
         weatherPagerAdapter = new WeatherPagerAdapter(this, cities);
+
         // Set adapter to the ViewPager
         viewPager2.setAdapter(weatherPagerAdapter);
 
@@ -129,10 +131,10 @@ public class MainActivity extends AppCompatActivity {
             getWeatherInfo(citiesName);
         } else {
             // add default city
-            weatherPagerAdapter.addCity("Berlin");
-            // get weather info for Zagreb
-            getWeatherInfo("Berlin");
-            Toast.makeText(MainActivity.this, "Unable to get current location", Toast.LENGTH_SHORT).show();
+            weatherPagerAdapter.addCity("Solin");
+            // get weather info for Solin
+            getWeatherInfo("Solin");
+            Toast.makeText(MainActivity.this, "Please wait while loading...", Toast.LENGTH_SHORT).show();
         }
 
         // save updated list of cities
@@ -293,14 +295,14 @@ public class MainActivity extends AppCompatActivity {
                     if (isDay == 1) {
                         // day
                         Picasso.get()
-                                .load(R.drawable.weather_3)
-                                .error(R.drawable.weather_7)
+                                .load(R.drawable.weather_2)
+                                .error(R.drawable.weather_1)
                                 .into(background);
                     } else {
                         // night
                         Picasso.get()
-                                .load(R.drawable.weather_8)
-                                .error(R.drawable.weather_7)
+                                .load(R.drawable.weather_3)
+                                .error(R.drawable.weather_4)
                                 .into(background);
                     }
 
