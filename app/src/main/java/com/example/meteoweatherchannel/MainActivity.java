@@ -79,9 +79,8 @@ public class MainActivity extends AppCompatActivity {
         // Initialisation of ViewPager2
         viewPager2 = findViewById(R.id.viewPager);
         // Initialisation of Weather Pager Adapter
-        List<String> cities = new ArrayList<>(Arrays.asList("Zagreb", "Split", "Osijek", "Rijeka", "Karlovac", "Vukovar", "Zadar", "Pula", "Dubrovnik", "Ploče"));
+        List<String> cities = new ArrayList<>(Arrays.asList("Solin", "Split", "Zagreb", "Osijek", "Rijeka", "Karlovac", "Vukovar", "Zadar", "Pula", "Dubrovnik", "Ploče"));
         weatherPagerAdapter = new WeatherPagerAdapter(this, cities);
-
         // Set adapter to the ViewPager
         viewPager2.setAdapter(weatherPagerAdapter);
 
@@ -130,9 +129,9 @@ public class MainActivity extends AppCompatActivity {
             getWeatherInfo(citiesName);
         } else {
             // add default city
-            weatherPagerAdapter.addCity("Zagreb");
+            weatherPagerAdapter.addCity("Berlin");
             // get weather info for Zagreb
-            getWeatherInfo("Zagreb");
+            getWeatherInfo("Berlin");
             Toast.makeText(MainActivity.this, "Unable to get current location", Toast.LENGTH_SHORT).show();
         }
 
@@ -157,10 +156,9 @@ public class MainActivity extends AppCompatActivity {
 
         // load simulation of loading
         simulateLoading();
-
     }
 
-    // hidding keyboard after entering city
+    // hiding keyboard after entering city
     private void hideKeyboard() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null) {

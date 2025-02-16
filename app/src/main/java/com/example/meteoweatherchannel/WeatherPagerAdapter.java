@@ -25,8 +25,8 @@ public class WeatherPagerAdapter extends FragmentStateAdapter {
             cities.add(city);
             notifyItemInserted(cities.size() - 1);
 
-            // set max limit of 20 cities
-            if (cities.size() > 20) {
+            // set max limit of 30 cities
+            if (cities.size() > 30) {
                 cities.remove(0);
                 notifyItemRemoved(0);
                 notifyItemRangeChanged(0, cities.size()); // Update remaining cities
