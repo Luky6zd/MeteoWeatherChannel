@@ -7,8 +7,11 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -18,8 +21,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -34,7 +39,13 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
+import com.google.android.gms.tasks.CancellationToken;
+import com.google.android.gms.tasks.OnTokenCanceledListener;
 import com.google.android.material.textfield.TextInputEditText;
 import com.squareup.picasso.Picasso;
 
@@ -65,8 +76,13 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager2 viewPager2;
     private SharedPreferences prefs;
     private WeatherFragmentAdapter weatherFragmentAdapter;
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationCallback locationCallback;
+    private Handler locationHandler;
+    private static final int LOCATION_TIMEOUT = 30000;
 
 
+    @RequiresApi(api = Build.VERSION_CODES.S)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,11 +90,9 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         setContentView(R.layout.activity_main);
 
-        // Initialisation of SharedPreferences
+        // Initialisations
         prefs = getSharedPreferences("weather_prefs", MODE_PRIVATE);
-        // Initialisation of ViewPager2
         viewPager2 = findViewById(R.id.viewPager);
-        // Initialisation of Weather Pager Adapter
         List<String> cities = new ArrayList<>(Arrays.asList("Solin", "Split", "Zagreb", "Osijek", "Rijeka", "Karlovac", "Vukovar", "Zadar", "Pula", "Dubrovnik", "Ploče", "Sibenik", "Makarska"));
         weatherPagerAdapter = new WeatherPagerAdapter(this, cities);
 
@@ -111,14 +125,17 @@ public class MainActivity extends AppCompatActivity {
         // Set adapter to the RecyclerView
         weather.setAdapter(weatherAdapter);
 
+
         // Get location manager
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
         // Check location permissions
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_CODE);
 
-            // ask for permissions
+            // ask user for permissions
             ActivityCompat.requestPermissions(
                     this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
@@ -129,9 +146,57 @@ public class MainActivity extends AppCompatActivity {
             getCurrentLocation();
         }
 
-        // Get last known location
-        Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
+
+        //NOVO
+        // pogledat i kopirat kod iz vježbe Lokator - za permisione
+        // permisioni moraju biti odobreni prije nego se aplikacija pokrene, tocnije ->
+        // toast message mora biti prikazan prije nego se aplikacija pokrene
+        // ako nema permisiona aplikacija se ne smije pokrenuti
+        // stavit u novu metodu cili blok koda
+        // za testirat da li permisioni rade deinstalirat aplikaciju -> settings -> uninstall application
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, new CancellationToken() {
+                @NonNull
+                @Override
+                public CancellationToken onCanceledRequested(@NonNull OnTokenCanceledListener onTokenCanceledListener) {
+                    return null;
+                }
+
+                @Override
+                public boolean isCancellationRequested() {
+                    return false;
+                }
+            }).addOnSuccessListener(this, loc -> {
+                if (loc != null) {
+                    double latitude = loc.getLatitude();
+                    double longitude = loc.getLongitude();
+                    String city = getCityName(longitude, latitude);
+                    getWeatherInfo(city);
+                } else {
+                    // Fallback: Koristi zadani grad ako lokacija nije dostupna
+                    getWeatherInfo("Split");
+                    Toast.makeText(this, "Location not available", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) return;
+                for (Location location : locationResult.getLocations()) {
+                    if (location != null) {
+                        String cityName = getCityName(location.getLongitude(), location.getLatitude());
+                        getWeatherInfo(cityName);
+                    }
+                }
+            }
+        };
+
+        // Get last known location
+        // FUSED_PROVIDER instead of NETWORK_PROVIDER
+        Location location = locationManager.getLastKnownLocation(LocationManager.FUSED_PROVIDER);
         if (location != null) {
             // get city name
             citiesName = getCityName(location.getLongitude(), location.getLatitude());
@@ -167,14 +232,55 @@ public class MainActivity extends AppCompatActivity {
 
         // load simulation of loading
         simulateLoading();
-        //addCity("Budapest");
+
+        //NOVO
+        // Restore data if available
+        if (savedInstanceState != null) {
+            String cityName = savedInstanceState.getString("cityName");
+            String temp = savedInstanceState.getString("temperature");
+            String condition = savedInstanceState.getString("condition");
+
+            city.setText(cityName);
+            temperature.setText(temp);
+            conditionView.setText(condition);
+
+            // Fetch weather data again if needed
+            getWeatherInfo(cityName);
+        } else {
+            // Fetch initial weather data
+            getCurrentLocation();
+        }
     }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("cityName", city.getText().toString());
+        outState.putString("temperature", temperature.getText().toString());
+        outState.putString("condition", conditionView.getText().toString());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        String cityName = savedInstanceState.getString("cityName");
+        String temp = savedInstanceState.getString("temperature");
+        String condition = savedInstanceState.getString("condition");
+
+        city.setText(cityName);
+        temperature.setText(temp);
+        conditionView.setText(condition);
+
+        // Fetch weather data again if needed
+        getWeatherInfo(cityName);
+    }
+
 
     private void getCurrentLocation() {
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        // Provjeri je li GPS ili mrežni provider dostupan
+        // check if GPS is enabled
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            // Koristi FusedLocationProviderClient za precizniju lokaciju (Google Play Services)
+            // get location client
             FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -273,7 +379,7 @@ public class MainActivity extends AppCompatActivity {
             List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 30);
             assert addresses != null;
             for (Address address : addresses) {
-                if (address != null) {
+                if (address != null && !addresses.isEmpty()) {
                     // getting city name
                     String city = address.getLocality();
                     if (city != null && !city.isEmpty()) {
@@ -382,5 +488,13 @@ public class MainActivity extends AppCompatActivity {
         });
         // adding request to request queue
         requestQueue.add(jsonObjectRequest);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (fusedLocationClient != null && locationCallback != null) {
+            fusedLocationClient.removeLocationUpdates(locationCallback);
+        }
     }
 }
